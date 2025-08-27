@@ -2,11 +2,14 @@
   "name": "smokey-portfolio-v3",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://YourUsername.github.io/brutalist-portfolio",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "predeploy": "npm run build && next export",
+    "deploy": "gh-pages -d out"
   },
   "dependencies": {
     "lucide-react": "^0.542.0",
@@ -23,11 +26,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "gh-pages": "^5" 
   }
-  "homepage": "https://YourUsername.github.io/brutalist-portfolio",
-"scripts": {
-  "predeploy": "npm run build",
-  "deploy": "gh-pages -d out"
-}
 }
