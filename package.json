@@ -25,4 +25,9 @@
     "tailwindcss": "^4",
     "typescript": "^5"
   }
+  "homepage": "https://YourUsername.github.io/brutalist-portfolio",
+"scripts": {
+  "predeploy": "npm run build",
+  "deploy": "gh-pages -d out"
+}
 }
