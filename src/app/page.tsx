@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Play, Pause, SkipBack, SkipForward, Linkedin, Palette } from "lucide-react";
+import Image from 'next/image';
 
 export default function BrutalistPortfolio() {
   const [loading, setLoading] = useState(true);
@@ -175,6 +176,11 @@ export default function BrutalistPortfolio() {
     return () => clearInterval(glitchInterval);
   }, []);
 
+  const nextTrack = useCallback(() => {
+    setCurrentTrack((prev) => (prev + 1) % tracks.length);
+    setProgress(0);
+  }, []);
+
   // Handle audio events
   useEffect(() => {
     const audio = audioRef.current;
@@ -201,7 +207,7 @@ export default function BrutalistPortfolio() {
       audio.removeEventListener('timeupdate', setAudioTime);
       audio.removeEventListener('ended', handleEnded);
     };
-  }, [currentTrack]);
+  }, [currentTrack, nextTrack]);
 
   // Play/pause when isPlaying changes
   useEffect(() => {
@@ -227,27 +233,34 @@ export default function BrutalistPortfolio() {
     e.preventDefault();
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!dragging || !popupRef.current || !isDesktop) return;
     
     setPosition({
       x: e.clientX - rel.x,
       y: e.clientY - rel.y
     });
-  };
+  }, [dragging, rel, isDesktop]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     if (!isDesktop) return;
     setDragging(false);
-  };
+  }, [isDesktop]);
+
+  useEffect(() => {
+    if (dragging && isDesktop) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [dragging, handleMouseMove, handleMouseUp, isDesktop]);
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying);
-  };
-
-  const nextTrack = () => {
-    setCurrentTrack((prev) => (prev + 1) % tracks.length);
-    setProgress(0);
   };
 
   const prevTrack = () => {
@@ -273,18 +286,6 @@ export default function BrutalistPortfolio() {
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
-
-  useEffect(() => {
-    if (dragging && isDesktop) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-    }
-    
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [dragging, rel, isDesktop]);
 
   const renderLoadingScreen = () => (
     <div className="fixed inset-0 bg-white flex items-center justify-center z-50">
@@ -369,9 +370,11 @@ export default function BrutalistPortfolio() {
       
       {/* Dead tree silhouette - always black with no opacity changes */}
       <div className="fixed left-8 bottom-0 z-0">
-        <img 
+        <Image 
           src="https://www.onlygfx.com/wp-content/uploads/2018/01/dead-tree-silhouette-2-10.png" 
           alt="Dead tree silhouette" 
+          width={320}
+          height={320}
           className="h-80 md:h-80 filter invert-0 opacity-100 md:opacity-100"
         />
       </div>
@@ -399,10 +402,10 @@ export default function BrutalistPortfolio() {
                 { cmd: "about", label: "ABOUT" },
                 { cmd: "contact", label: "CONTACT" },
                 { cmd: "instagram", label: "INSTAGRAM" }
-              ].map((item, index) => (
+              ].map((item) => (
                 <button
                   key={item.cmd}
-                  onClick={() => setCurrentPage(item.cmd as any)}
+                  onClick={() => setCurrentPage(item.cmd as "home" | "portfolio" | "about" | "contact" | "instagram")}
                   className="border border-black p-2 text-center hover:bg-black hover:text-white transition-all duration-300 transform hover:scale-105 flex flex-col items-center justify-center bg-white min-h-[60px]"
                 >
                   <div className="font-bold text-base">{item.label}</div>
@@ -448,9 +451,11 @@ export default function BrutalistPortfolio() {
         {portfolioItems.map((item) => (
           <div key={item.id} className="border border-black hover:border-gray-700 transition-colors bg-white">
             <div className="h-64 bg-gray-100 border-b border-black overflow-hidden">
-              <img 
+              <Image 
                 src={item.imageUrl} 
                 alt={item.title}
+                width={300}
+                height={256}
                 className="w-full h-full object-cover"
               />
             </div>
