@@ -2,7 +2,7 @@
   "name": "smokey-portfolio-v3",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://YourUsername.github.io/brutalist-portfolio",
+  "homepage": "https://SkateTortoiseWEB.github.io/brutalist-portfolio",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
